@@ -1,0 +1,32 @@
+{
+  "name": "ssh-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for executing commands and transferring files over SSH",
+  "type": "module",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "pnpm@10.25.0",
+  "scripts": {
+    "preinstall": "node -e \"if (!process.env.npm_execpath || !process.env.npm_execpath.includes('pnpm')) { console.error('Please use pnpm to install dependencies.'); process.exit(1); }\"",
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "bundle": "esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/bundle/index.mjs --external:cpu-features --banner:js=\"import { createRequire } from 'node:module'; import { fileURLToPath as __frURL } from 'node:url'; import { dirname as __dirnameFn } from 'node:path'; const require = createRequire(import.meta.url); const __filename = __frURL(import.meta.url); const __dirname = __dirnameFn(__filename);\" --log-level=warning",
+    "release": "pnpm run build && pnpm run bundle"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.14.0",
+    "dotenv": "^16.5.0",
+    "ssh2": "^1.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/ssh2": "^1.15.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
+}
