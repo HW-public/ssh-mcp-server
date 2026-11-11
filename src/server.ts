@@ -18,7 +18,7 @@ const HOST_DESCRIPTION =
   'Name of the SSH host to use (see list_hosts). ' +
   'Defaults to the configured default host, if only one is configured.';
 
-const executeCommandTool: Tool = {
+const executeCommandTool = {
   name: 'execute_command',
   description: 'Execute a command on a remote host over SSH.',
   inputSchema: {
@@ -37,7 +37,7 @@ const executeCommandTool: Tool = {
   },
 };
 
-const uploadFileTool: Tool = {
+const uploadFileTool = {
   name: 'upload_file',
   description: 'Upload a local file to a remote host over SFTP.',
   inputSchema: {
@@ -60,7 +60,7 @@ const uploadFileTool: Tool = {
   },
 };
 
-const downloadFileTool: Tool = {
+const downloadFileTool = {
   name: 'download_file',
   description: 'Download a file from a remote host over SFTP.',
   inputSchema: {
@@ -83,7 +83,7 @@ const downloadFileTool: Tool = {
   },
 };
 
-const addHostTool: Tool = {
+const addHostTool = {
   name: 'add_host',
   description:
     'Connect to an additional SSH host at runtime — no server restart needed. ' +
@@ -125,7 +125,7 @@ const addHostTool: Tool = {
   },
 };
 
-const listHostsTool: Tool = {
+const listHostsTool = {
   name: 'list_hosts',
   description: 'List all configured SSH hosts (never includes passwords).',
   inputSchema: {
@@ -134,16 +134,17 @@ const listHostsTool: Tool = {
   },
 };
 
-// Declared as individually-typed constants rather than one annotated array
-// literal: some TS versions infer a union of object types for the literal and
-// fail to assign it to Tool[].
-const tools: Tool[] = [
+// Double assertion instead of annotating the literals as Tool: the shape is
+// validated by `pnpm run typecheck` in CI (tsc), while some IDE language
+// services resolve different SDK/zod .d.ts generics and report false
+// positives on literal-to-Tool assignability. Runtime schema is unchanged.
+const tools = [
   executeCommandTool,
   uploadFileTool,
   downloadFileTool,
   addHostTool,
   listHostsTool,
-];
+] as unknown as Tool[];
 
 export function createServer(config: Config, registry: HostRegistry): Server {
   const server = new Server(
