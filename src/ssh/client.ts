@@ -12,7 +12,9 @@ function toConnectConfig(host: SSHHostConfig): ConnectConfig {
   };
 
   if (host.privateKeyPath) {
-    base.privateKey = readFileSync(host.privateKeyPath);
+    // Read as PEM string — avoids Buffer/NonSharedBuffer assignability
+    // differences across @types/node versions.
+    base.privateKey = readFileSync(host.privateKeyPath, 'utf8');
     if (host.passphrase) base.passphrase = host.passphrase;
   } else if (host.password) {
     base.password = host.password;

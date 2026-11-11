@@ -18,118 +18,131 @@ const HOST_DESCRIPTION =
   'Name of the SSH host to use (see list_hosts). ' +
   'Defaults to the configured default host, if only one is configured.';
 
+const executeCommandTool: Tool = {
+  name: 'execute_command',
+  description: 'Execute a command on a remote host over SSH.',
+  inputSchema: {
+    type: 'object' as const,
+    properties: {
+      command: {
+        type: 'string',
+        description: 'The shell command to execute.',
+      },
+      host: {
+        type: 'string',
+        description: HOST_DESCRIPTION,
+      },
+    },
+    required: ['command'],
+  },
+};
+
+const uploadFileTool: Tool = {
+  name: 'upload_file',
+  description: 'Upload a local file to a remote host over SFTP.',
+  inputSchema: {
+    type: 'object' as const,
+    properties: {
+      local_path: {
+        type: 'string',
+        description: 'Absolute path of the local file, e.g. "C:\\tmp\\a.txt".',
+      },
+      remote_path: {
+        type: 'string',
+        description: 'Absolute target path on the remote host, e.g. "/tmp/a.txt".',
+      },
+      host: {
+        type: 'string',
+        description: HOST_DESCRIPTION,
+      },
+    },
+    required: ['local_path', 'remote_path'],
+  },
+};
+
+const downloadFileTool: Tool = {
+  name: 'download_file',
+  description: 'Download a file from a remote host over SFTP.',
+  inputSchema: {
+    type: 'object' as const,
+    properties: {
+      remote_path: {
+        type: 'string',
+        description: 'Absolute path of the file on the remote host.',
+      },
+      local_path: {
+        type: 'string',
+        description: 'Absolute path to save the file locally, e.g. "C:\\tmp\\a.txt".',
+      },
+      host: {
+        type: 'string',
+        description: HOST_DESCRIPTION,
+      },
+    },
+    required: ['remote_path', 'local_path'],
+  },
+};
+
+const addHostTool: Tool = {
+  name: 'add_host',
+  description:
+    'Connect to an additional SSH host at runtime — no server restart needed. ' +
+    'The new host can then be used via the host parameter of all other tools. ' +
+    'Note: credentials passed here are visible in session logs; prefer environment variables for permanent hosts.',
+  inputSchema: {
+    type: 'object' as const,
+    properties: {
+      name: {
+        type: 'string',
+        description: 'Unique name for the new host, e.g. "h3c-ubuntu" or "aliyun-prod".',
+      },
+      host: {
+        type: 'string',
+        description: 'Hostname or IP address.',
+      },
+      user: {
+        type: 'string',
+        description: 'SSH username. Required.',
+      },
+      port: {
+        type: 'number',
+        description: 'SSH port. Default: 22.',
+      },
+      password: {
+        type: 'string',
+        description: 'Password for password authentication. Mutually exclusive with private_key_path.',
+      },
+      private_key_path: {
+        type: 'string',
+        description: 'Absolute path to a private key file, e.g. "C:\\Users\\you\\.ssh\\id_ed25519".',
+      },
+      passphrase: {
+        type: 'string',
+        description: 'Passphrase of the private key, if any.',
+      },
+    },
+    required: ['name', 'host', 'user'],
+  },
+};
+
+const listHostsTool: Tool = {
+  name: 'list_hosts',
+  description: 'List all configured SSH hosts (never includes passwords).',
+  inputSchema: {
+    type: 'object' as const,
+    properties: {},
+  },
+};
+
+// Declared as individually-typed constants rather than one annotated array
+// literal: some TS versions infer a union of object types for the literal and
+// fail to assign it to Tool[].
 const tools: Tool[] = [
-  {
-    name: 'execute_command',
-    description: 'Execute a command on a remote host over SSH.',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        command: {
-          type: 'string',
-          description: 'The shell command to execute.',
-        },
-        host: {
-          type: 'string',
-          description: HOST_DESCRIPTION,
-        },
-      },
-      required: ['command'],
-    },
-  },
-  {
-    name: 'upload_file',
-    description: 'Upload a local file to a remote host over SFTP.',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        local_path: {
-          type: 'string',
-          description: 'Absolute path of the local file, e.g. "C:\\tmp\\a.txt".',
-        },
-        remote_path: {
-          type: 'string',
-          description: 'Absolute target path on the remote host, e.g. "/tmp/a.txt".',
-        },
-        host: {
-          type: 'string',
-          description: HOST_DESCRIPTION,
-        },
-      },
-      required: ['local_path', 'remote_path'],
-    },
-  },
-  {
-    name: 'download_file',
-    description: 'Download a file from a remote host over SFTP.',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        remote_path: {
-          type: 'string',
-          description: 'Absolute path of the file on the remote host.',
-        },
-        local_path: {
-          type: 'string',
-          description: 'Absolute path to save the file locally, e.g. "C:\\tmp\\a.txt".',
-        },
-        host: {
-          type: 'string',
-          description: HOST_DESCRIPTION,
-        },
-      },
-      required: ['remote_path', 'local_path'],
-    },
-  },
-  {
-    name: 'add_host',
-    description:
-      'Connect to an additional SSH host at runtime — no server restart needed. ' +
-      'The new host can then be used via the host parameter of all other tools. ' +
-      'Note: credentials passed here are visible in session logs; prefer environment variables for permanent hosts.',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        name: {
-          type: 'string',
-          description: 'Unique name for the new host, e.g. "h3c-ubuntu" or "aliyun-prod".',
-        },
-        host: {
-          type: 'string',
-          description: 'Hostname or IP address.',
-        },
-        user: {
-          type: 'string',
-          description: 'SSH username. Required.',
-        },
-        port: {
-          type: 'number',
-          description: 'SSH port. Default: 22.',
-        },
-        password: {
-          type: 'string',
-          description: 'Password for password authentication. Mutually exclusive with private_key_path.',
-        },
-        private_key_path: {
-          type: 'string',
-          description: 'Absolute path to a private key file, e.g. "C:\\Users\\you\\.ssh\\id_ed25519".',
-        },
-        passphrase: {
-          type: 'string',
-          description: 'Passphrase of the private key, if any.',
-        },
-      },
-      required: ['name', 'host', 'user'],
-    },
-  },
-  {
-    name: 'list_hosts',
-    description: 'List all configured SSH hosts (never includes passwords).',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {},
-    },
-  },
+  executeCommandTool,
+  uploadFileTool,
+  downloadFileTool,
+  addHostTool,
+  listHostsTool,
 ];
 
 export function createServer(config: Config, registry: HostRegistry): Server {
